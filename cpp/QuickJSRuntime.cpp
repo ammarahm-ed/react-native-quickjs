@@ -214,12 +214,15 @@ jsi::Value QuickJSRuntime::evaluateJavaScript(
     bool hasCodeCache = (codeCacheItem.result == CodeCacheItem::INITIALIZED);
     JSValue func, cachedFunc;
     if (hasCodeCache) {
+      LOG(ERROR) << "LOAD FROM CODE CACHE";
+
       func = JS_ReadObject(
           context_,
           codeCacheItem.data.get(),
           codeCacheItem.size,
           JS_READ_OBJ_BYTECODE);
     } else {
+      LOG(ERROR) << "LOAD FROM JS BUNDLE";
       func = JS_Eval(
           context_,
           (const char *) buffer->data(),
