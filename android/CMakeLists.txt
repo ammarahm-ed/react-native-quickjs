@@ -1,13 +1,10 @@
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.9.4)
 project(react-native-quickjs)
 set (CMAKE_VERBOSE_MAKEFILE ON)
-set (CMAKE_CXX_STANDARD 14)
+set (CMAKE_CXX_STANDARD 17)
+set(MI_OVERRIDE OFF)
 
 set(PACKAGE_NAME "quickjsexecutor")
-
-# Folly compile flags
-include("${REACT_NATIVE_DIR}/ReactAndroid/cmake-utils/folly-flags.cmake")
-add_compile_options(${folly_FLAGS})
 
 # QuickJS compile flags
 add_compile_options(
@@ -19,8 +16,21 @@ add_compile_options(
         -DENABLE_HASH_CHECK=${ENABLE_HASH_CHECK}
         -DCONFIG_BIGNUM)
 
+include(CheckIPOSupported)
+check_ipo_supported(RESULT supported OUTPUT error)
+if( supported )
+   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
+
+# Folly compile flags
+include("${REACT_NATIVE_DIR}/ReactAndroid/cmake-utils/folly-flags.cmake")
+add_compile_options(${folly_FLAGS})
+
+add_subdirectory(../cpp/quickjs/vendor/mimalloc mimalloc)
+
 file(GLOB quickjs_jni_SRC CONFIGURE_DEPENDS ./src/main/jni/*.cpp)
-file(GLOB quickjs_SRC CONFIGURE_DEPENDS ../cpp/*.cpp ../cpp/engine/*.c)
+file(GLOB quickjs_SRC CONFIGURE_DEPENDS ../cpp/*.cpp ../cpp/quickjs/src/*.c ../cpp/quickjs/src/**/*.c ../cpp/quickjs/src/core/builtins/*.c)
+
 add_library(${PACKAGE_NAME}
             SHARED
             ${quickjs_jni_SRC}
@@ -35,9 +45,11 @@ target_include_directories(
 
 # Specifies a path to native header files.
 include_directories(
-        ./src/main/jni/
+        ./src/main/jni
         ../cpp
-        ../cpp/engine
+        ../cpp/quickjs/include
+        ../cpp/quickjs
+        ../cpp/quickjs/vendor/mimalloc/include
 )
 
 # find libraries
@@ -86,6 +98,7 @@ target_link_libraries(
   ReactAndroid::reactnativejni
   ReactAndroid::runtimeexecutor
   reactnative_internal_static
+  mimalloc
 )
 
 # target_compile_options(${PACKAGE_NAME} PUBLIC -fsanitize=address -fno-omit-frame-pointer)

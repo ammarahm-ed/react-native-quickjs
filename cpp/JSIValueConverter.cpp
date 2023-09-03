@@ -2,6 +2,7 @@
 
 #include "QuickJSPointerValue.h"
 #include "ScopedJSValue.h"
+#include "android/log.h"
 
 namespace qjs {
 
@@ -18,7 +19,7 @@ jsi::Value JSIValueConverter::ToJSIValue(
     return jsi::Value::null();
   }
   if (JS_IsBool(value)) {
-    return jsi::Value(JS_VALUE_GET_BOOL(value));
+    return {JS_VALUE_GET_BOOL(value) == 0 ? false : true};
   }
   if (JS_IsNumber(value)) {
     if (JS_TAG_IS_FLOAT64(JS_VALUE_GET_TAG(value))) {
@@ -105,6 +106,7 @@ JSValue JSIValueConverter::ToJSObject(
   const QuickJSPointerValue *quickJSPointerValue =
       static_cast<const QuickJSPointerValue *>(runtime.getPointerValue(object));
   auto jsObject = quickJSPointerValue->Get(runtime.getJSContext());
+
   assert(JS_IsObject(jsObject));
   return jsObject;
 }

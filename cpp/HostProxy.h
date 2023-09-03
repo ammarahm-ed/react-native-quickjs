@@ -6,8 +6,8 @@
 namespace qjs {
 
 struct OpaqueData {
-  static void *GetHostData(JSValueConst this_val);
-
+  static void *GetHostData(JSContext *context, JSValueConst this_val,JSClassID cls);
+  static void *GetHostData(JSValueConst this_val, JSClassID cls);
   void *hostData_;
   std::shared_ptr<facebook::jsi::NativeState> nativeState_;
 };
@@ -24,21 +24,25 @@ class HostObjectProxy : public OpaqueOwner {
 
   std::shared_ptr<jsi::HostObject> GetHostObject();
 
+  static void RegisterClass(QuickJSRuntime &runtime);
+
   OpaqueData *GetOpaqueData() override;
 
   static JSClassID GetClassID();
 
-  static JSValue Getter(JSContext *ctx, JSValueConst this_val, JSAtom name);
+  static JSValue Get(JSContext *ctx, JSValueConst this_val, JSAtom name, JSValueConst receiver);
 
-  static JSValue
-  Setter(JSContext *ctx, JSValueConst this_val, JSAtom name, JSValue val);
+  static int
+  Set(JSContext *ctx, JSValueConst this_val, JSAtom name, JSValue val, JSValueConst receiver, int flags);
 
-  static JSValue Enumerator(JSContext *ctx, JSValueConst this_val);
+  static int GetOwnPropertyNames(JSContext* ctx, JSPropertyEnum** ptab, uint32_t* plen, JSValueConst this_val);
+
+//  static JSValue Enumerator(JSContext *ctx, JSValueConst this_val);
 
   static void Finalizer(JSRuntime *rt, JSValue val);
 
   static JSClassDef kJSClassDef;
-  static const JSCFunctionListEntry kTemplateInterceptor[];
+//  static const JSCFunctionListEntry kTemplateInterceptor[];
 
  private:
   QuickJSRuntime &runtime_;
@@ -69,6 +73,8 @@ class HostFunctionProxy : public OpaqueOwner {
       int argc,
       JSValueConst *argv,
       int flags);
+
+  static void RegisterClass(QuickJSRuntime &runtime);
 
   static JSClassDef kJSClassDef;
 

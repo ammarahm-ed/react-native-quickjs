@@ -5,7 +5,7 @@
 #include <unordered_map>
 
 #include "jsi/jsi.h"
-#include "quickjs.h"
+#include "quickjs/quickjs.h"
 
 namespace jsi = facebook::jsi;
 
@@ -22,7 +22,7 @@ struct CodeCacheItem {
     UPDATED
   };
 
-  std::unique_ptr<uint8_t> data = nullptr;
+  uint8_t *data = nullptr;
   size_t size = 0;
   Result result = UNINITIALIZED;
 };
@@ -36,9 +36,9 @@ class QuickJSRuntime : public jsi::Runtime {
 
  private:
   void checkAndThrowException(JSContext *context) const;
-  void loadCodeCache(CodeCacheItem &codeCacheItem, const std::string& url, const char *source,
+  void loadCodeCache(CodeCacheItem *codeCacheItem, const std::string& url, const char *source,
                      size_t size);
-  void updateCodeCache(CodeCacheItem &codeCacheItem, const std::string& url, const char *source,
+  void updateCodeCache(CodeCacheItem *codeCacheItem, const std::string& url, const char *source,
                      size_t size);
 
 

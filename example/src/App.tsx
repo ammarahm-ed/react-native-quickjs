@@ -1,19 +1,34 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow
- */
+/* eslint-disable react-native/no-inline-styles */
+import React, { useEffect } from 'react';
+import { Text, View, NativeModules } from 'react-native';
 
-import React from 'react';
-import { SafeAreaView } from 'react-native';
-import SearchableFlatList from './SearchableList';
-
-const App = () => (
-  <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-    <SearchableFlatList />
-  </SafeAreaView>
-);
+const App = () => {
+  useEffect(() => {
+    NativeModules.TTIModule.componentDidMount(Date.now());
+  }, []);
+  return (
+    <View
+      style={{
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+      nativeID="my-test-view"
+      id="my-test-view"
+      collapsable={true}
+      focusable={true}
+    >
+      <Text
+        style={{
+          color: 'green',
+          fontWeight: 'bold',
+        }}
+      >
+        Hello World
+      </Text>
+    </View>
+  );
+};
 
 export default App;
